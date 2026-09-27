@@ -6,3 +6,22 @@ React + Vite + TypeScript 的高海拔自动气象站监控基础项目。提供
 npm install
 npm run dev
 ```
+
+## 观测归档包
+
+月度巡护结束后，外部分析人员可在「观测归档包」面板按时间范围（24 小时 / 7 天 / 30 天）生成可下载的机器可读 JSON 快照。归档在生成时刻冻结以下内容，之后不再随实时数据变化：
+
+- `observations`：各传感器在时间范围内的 10 分钟采样序列
+- `alerts`：时间范围内的告警与运行事件
+- `environment`：环境摘要（温度 / 风速 / 雪深 / 电量等统计）
+- `quality`：各传感器的样本数、缺失数、完整率与质量评分
+- `missing`：总体完整率，以及每段数据缺失的起止时间、原因和缺失样本数
+- `generatedAt`：归档生成时间；`range`：归档时间范围
+
+归档文件持久化在服务端 `server/archives/` 目录，接口如下：
+
+| 方法 | 路径 | 说明 |
+| --- | --- | --- |
+| `POST` | `/api/archives` | 按 `{ "from": ISO, "to": ISO }` 生成并冻结归档（范围最长 45 天） |
+| `GET` | `/api/archives` | 已生成归档的元数据列表 |
+| `GET` | `/api/archives/:id/download` | 下载冻结的归档 JSON（内容不会随后续数据变化） |
